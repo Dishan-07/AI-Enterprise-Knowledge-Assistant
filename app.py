@@ -192,10 +192,20 @@ with st.sidebar:
         "Knowledge Base"
     )
 
+    # --------------------------------------------------------
+    # FILE UPLOADER
+    # A changing key lets the Clear button fully reset the
+    # Streamlit file-uploader widget itself.
+    # --------------------------------------------------------
+
+    if "uploader_version" not in st.session_state:
+        st.session_state.uploader_version = 0
+
     uploaded_files = st.file_uploader(
         "Upload additional PDF documents",
         type=["pdf"],
         accept_multiple_files=True,
+        key=f"pdf_uploader_{st.session_state.uploader_version}",
         help=(
             "Uploaded PDFs are indexed "
             "for this browser session."
@@ -268,8 +278,13 @@ with st.sidebar:
         use_container_width=True
     ):
 
+        # Remove uploaded PDFs from application state
         st.session_state.uploaded_files = []
 
+        # Reset the file-uploader widget itself
+        st.session_state.uploader_version += 1
+
+        # Rebuild the knowledge base using only bundled PDFs
         build_resources.clear()
 
         st.rerun()
